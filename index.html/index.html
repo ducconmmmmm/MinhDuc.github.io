@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duck - Trang Liên Kết Cá Nhân</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            color: white;
+            background: #000;
+        }
+
+        /* ========== VIDEO NỀN ========== */
+        #video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        /* ========== CONTAINER CHÍNH ========== */
+        .container {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 30px 20px;
+            perspective: 1200px;
+        }
+
+        /* ========== CỘT BÊN TRÁI ========== */
+        .left-links {
+            position: fixed;
+            left: 30px;
+            top: 50%; 
+            transform: translateY(-50%); 
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 10;
+            width: 400px;
+            align-items: flex-start;
+        }
+
+        /* ========== NỘI DUNG CHÍNH GIỮA ========== */
+        .center-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            z-index: 10;
+            position: relative;
+            padding: 25px;
+        }
+
+        /* ========== CONTAINER LINK CHÍNH ========== */
+        .links-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            width: 100%;
+        }
+
+        /* ========== CARD 3D CHUNG ========== */
+        .link-card {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+            border-radius: 15px;
+            box-shadow: 
+                0 10px 20px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(255, 255, 255, 0.1) inset;
+            text-decoration: none !important;
+            will-change: transform;
+        }
+
+        /* ========== KÍCH THƯỚC TỪNG NÚT ========== */
+        .link-card.wide-card {
+            width: 400px; 
+            height: 100px;
+        }
+
+        .link-card.square-card {
+            width: 160px;
+            height: 180px;
+        }
+
+        /* ========== MÀU SẮC RIÊNG CHO MẶT SAU ========== */
+        #valorant-card .link-card-back {
+            background: linear-gradient(135deg, rgba(255, 70, 85, 0.9), rgba(185, 29, 44, 0.9));
+        }
+        #twitter-card .link-card-back {
+            background: linear-gradient(135deg, rgba(29, 161, 242, 0.9), rgba(13, 139, 217, 0.9));
+        }
+        #youtube-card .link-card-back {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.9), rgba(204, 0, 0, 0.9));
+        }
+        #discord-card .link-card-back {
+            background: linear-gradient(135deg, rgba(88, 101, 242, 0.9), rgba(71, 82, 196, 0.9));
+        }
+        #facebook-card .link-card-back {
+            background: linear-gradient(135deg, rgba(24, 119, 242, 0.9), rgba(22, 111, 229, 0.9));
+        }
+        #tiktok-card .link-card-back {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(51, 51, 51, 0.9));
+        }
+        #instagram-card .link-card-back {
+            background: linear-gradient(45deg, rgba(245, 96, 64, 0.9), rgba(225, 48, 108, 0.9), rgba(131, 58, 180, 0.9));
+        }
+
+        /* ========== CÁC THÀNH PHẦN CHUNG CỦA CARD ========== */
+        .link-card-front, .link-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* MẶT TRƯỚC - TRONG SUỐT */
+        .link-card-front {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* MẶT SAU */
+        .link-card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* ========== BỐ CỤC NGANG CHO CARD RỘNG ========== */
+        .wide-card .link-card-front, 
+        .wide-card .link-card-back {
+            flex-direction: row; 
+            justify-content: flex-start;
+            text-align: left;
+            gap: 20px;
+            padding: 0 30px; 
+        }
+        
+        /* Container cho chữ */
+        .text-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        /* ========== ẢNH CÁ NHÂN ========== */
+        .personal-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+
+        .icon {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            color: white;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .link-title {
+            font-size: 1.2rem;
+            color: white;
+            margin-bottom: 3px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Căn trái tiêu đề trong card ngang */
+        .wide-card .link-title {
+            text-align: left;
+        }
+
+        .link-desc {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            line-height: 1.4;
+        }
+        
+        /* Căn trái mô tả trong card ngang */
+        .wide-card .link-desc {
+            text-align: left;
+        }
+
+        /* ========== HIỆU ỨNG HOVER CHUNG ========== */
+        .link-card:hover {
+            transform: rotateY(20deg) rotateX(10deg) translateY(-15px);
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(255, 255, 255, 0.2) inset,
+                0 0 40px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Viền Neon/Gradient */
+        .link-card::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, 
+                rgba(255, 0, 0, 0.6), rgba(255, 115, 0, 0.6), rgba(255, 251, 0, 0.6), rgba(72, 255, 0, 0.6), 
+                rgba(0, 255, 213, 0.6), rgba(0, 43, 255, 0.6), rgba(122, 0, 255, 0.6), rgba(255, 0, 200, 0.6), rgba(255, 0, 0, 0.6)
+            );
+            background-size: 400%;
+            border-radius: 17px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+            animation: neonBorder 3s linear infinite;
+            filter: blur(5px);
+        }
+
+        .link-card:hover::after {
+            opacity: 0.8;
+        }
+
+        @keyframes neonBorder {
+            0% {
+                background-position: 0 0;
+                filter: hue-rotate(0deg) blur(5px);
+            }
+            50% {
+                background-position: 400% 0;
+            }
+            100% {
+                background-position: 0 0;
+                filter: hue-rotate(360deg) blur(5px);
+            }
+        }
+        
+        /* ========== CREDIT BOX ========== */
+        .credit-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .credit-box:hover {
+            opacity: 1;
+            transform: translateY(-5px);
+        }
+
+        .credit-content {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.2),
+                0 0 10px rgba(255, 255, 255, 0.1) inset;
+        }
+
+        .credit-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
+        }
+
+        .credit-role {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .credit-box::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, 
+                rgba(255, 0, 0, 0.3), rgba(255, 115, 0, 0.3), rgba(255, 251, 0, 0.3), rgba(72, 255, 0, 0.3), 
+                rgba(0, 255, 213, 0.3), rgba(0, 43, 255, 0.3), rgba(122, 0, 255, 0.3), rgba(255, 0, 200, 0.3), rgba(255, 0, 0, 0.3)
+            );
+            background-size: 400%;
+            border-radius: 12px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+            animation: neonBorder 3s linear infinite;
+            filter: blur(5px);
+        }
+
+        .credit-box:hover::after {
+            opacity: 0.6;
+        }
+        
+        /* ========== THÔNG BÁO COPY ========== */
+        .copy-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px 30px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            transition: transform 0.4s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .copy-notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1200px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+                padding-top: 100px;
+            }
+            
+            .left-links {
+                position: relative;
+                left: 0;
+                top: 0;
+                transform: none;
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                margin-bottom: 30px;
+                flex-wrap: wrap;
+            }
+            
+            .link-card {
+                width: 140px !important;
+                height: 160px !important;
+            }
+            
+            /* Đưa bố cục card trái về dọc cho mobile/tablet */
+            .wide-card .link-card-front, 
+            .wide-card .link-card-back {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+                gap: 0;
+            }
+
+            /* Responsive cho ảnh cá nhân */
+            .personal-image {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 12px;
+                margin-right: 0;
+            }
+
+            .text-content {
+                display: contents; 
+            }
+            
+            .link-title, .link-desc {
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .link-card {
+                width: 130px !important;
+                height: 150px !important;
+            }
+            
+            .links-container, .left-links {
+                gap: 15px;
+            }
+            
+            /* Responsive cho ảnh cá nhân */
+            .personal-image {
+                width: 45px;
+                height: 45px;
+                margin-bottom: 10px;
+            }
+            
+            .icon {
+                font-size: 1.8rem;
+            }
+            
+            .link-title {
+                font-size: 1rem;
+            }
+            
+            .link-desc {
+                font-size: 0.7rem;
+            }
+            
+            /* Responsive credit box */
+            .credit-box {
+                top: 15px;
+                right: 15px;
+            }
+            
+            .credit-content {
+                padding: 10px 15px;
+            }
+            
+            .credit-name {
+                font-size: 1rem;
+            }
+            
+            .credit-role {
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .link-card {
+                width: 110px !important;
+                height: 130px !important;
+            }
+            
+            /* Responsive cho ảnh cá nhân */
+            .personal-image {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 8px;
+            }
+            
+            .icon {
+                font-size: 1.6rem;
+                margin-bottom: 8px;
+            }
+            
+            .link-title {
+                font-size: 0.9rem;
+                margin-bottom: 5px;
+            }
+            
+            .link-desc {
+                font-size: 0.65rem;
+            }
+            
+            .links-container, .left-links {
+                gap: 12px;
+            }
+            
+            /* Responsive credit box */
+            .credit-box {
+                top: 10px;
+                right: 10px;
+            }
+            
+            .credit-content {
+                padding: 8px 12px;
+            }
+            
+            .credit-name {
+                font-size: 0.9rem;
+            }
+            
+            .credit-role {
+                font-size: 0.6rem;
+            }
+        }
+        
+        /* ========== SCROLLBAR ========== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="credit-box" id="creditBox">
+        <div class="credit-content">
+            <span class="credit-name">Đoàn Minh Đức</span>
+            <span class="credit-role">0788 835 487</span>
+            <span class="credit-role">0325 226 045</span>
+        </div>
+    </div>
+    
+    <div class="copy-notification" id="copyNotification">Đã sao chép !</div>
+
+    <video id="video-background" autoplay muted loop playsinline>
+        <source src="video1.mp4" type="video/mp4">
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-flying-through-a-nebula-3233-large.mp4" type="video/mp4">
+    </video>
+
+    <div class="container">
+        <div class="left-links">
+            <a href="https://tracker.gg/valorant/profile/riot/duck%230312/overview?platform=pc&playlist=competitive&season=4c4b8cff-43eb-13d3-8f14-96b783c90cd2" target="_blank" class="link-card wide-card" id="valorant-card">
+                <div class="link-card-front">
+                    <img src="clove.webp" alt="Valorant Avatar" class="personal-image">
+                    <div class="text-content">
+                        <h3 class="link-title">duck#0312</h3>
+                        <p class="link-desc">Valorant Tracker</p>
+                    </div>
+                </div>
+                <div class="link-card-back">
+                    <div class="text-content">
+                        <h3 class="link-title">Valorant Stats</h3>
+                        <p class="link-desc">Nhấn để xem thống kê</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="https://locket.cam/duckdzvicidi" target="_blank" class="link-card wide-card" id="twitter-card">
+                <div class="link-card-front">
+                    <img src="locket.png" alt="Locket Avatar" class="personal-image">
+                    <div class="text-content">
+                        <h3 class="link-title">@duckdzvicidi</h3>
+                        <p class="link-desc">KB locket nào</p>
+                    </div>
+                </div>
+                <div class="link-card-back">
+                    <div class="text-content">
+                        <h3 class="link-title">Locket</h3>
+                        <p class="link-desc">Nhấn để kết nối</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="https://www.youtube.com/feed/you" target="_blank" class="link-card wide-card" id="youtube-card">
+                <div class="link-card-front">
+                    <img src="youtube.png" alt="YouTube Avatar" class="personal-image">
+                    <div class="text-content">
+                        <h3 class="link-title">YouTube</h3>
+                        <p class="link-desc">Kênh của tôi</p>
+                    </div>
+                </div>
+                <div class="link-card-back">
+                    <div class="text-content">
+                        <h3 class="link-title">YouTube</h3>
+                        <p class="link-desc">Nhấn để truy cập</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Thay đổi: Discord thành div thay vì a -->
+            <div class="link-card wide-card" id="discord-card">
+                <div class="link-card-front">
+                    <img src="dis.png" alt="Discord Avatar" class="personal-image">
+                    <div class="text-content">
+                        <h3 class="link-title">Discord</h3>
+                        <p class="link-desc">minhduc03_12_24687</p>
+                    </div>
+                </div>
+                <div class="link-card-back">
+                    <div class="text-content">
+                        <h3 class="link-title">Discord ID</h3>
+                        <p class="link-desc">Nhấn để sao chép</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="center-content">
+            <div class="links-container">
+                <a href="https://www.facebook.com/minh.duc.240662" target="_blank" class="link-card square-card" id="facebook-card">
+                    <div class="link-card-front">
+                        <div class="icon"><i class="fab fa-facebook-f"></i></div>
+                        <h3 class="link-title">Facebook</h3>
+                        <p class="link-desc">Trang cá nhân</p>
+                    </div>
+                    <div class="link-card-back">
+                        <h3 class="link-title">Facebook</h3>
+                        <p class="link-desc">Nhấn để truy cập</p>
+                    </div>
+                </a>
+
+                <a href="https://www.tiktok.com/@duckk0312" target="_blank" class="link-card square-card" id="tiktok-card">
+                    <div class="link-card-front">
+                        <div class="icon"><i class="fab fa-tiktok"></i></div>
+                        <h3 class="link-title">TikTok</h3>
+                        <p class="link-desc">@duckk0312</p>
+                    </div>
+                    <div class="link-card-back">
+                        <h3 class="link-title">TikTok</h3>
+                        <p class="link-desc">Nhấn để truy cập</p>
+                    </div>
+                </a>
+
+                <a href="https://www.instagram.com/duck0.312/" target="_blank" class="link-card square-card" id="instagram-card">
+                    <div class="link-card-front">
+                        <div class="icon"><i class="fab fa-instagram"></i></div>
+                        <h3 class="link-title">Instagram</h3>
+                        <p class="link-desc">@duck0.312</p>
+                    </div>
+                    <div class="link-card-back">
+                        <h3 class="link-title">Instagram</h3>
+                        <p class="link-desc">Nhấn để truy cập</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== HIỆU ỨNG 3D CHO CARD ==========
+        document.querySelectorAll('.link-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const cardRect = card.getBoundingClientRect();
+                const x = e.clientX - cardRect.left;
+                const y = e.clientY - cardRect.top;
+                
+                const centerX = cardRect.width / 2;
+                const centerY = cardRect.height / 2;
+                
+                const rotateY = ((x - centerX) / centerX) * 10; 
+                const rotateX = ((centerY - y) / centerY) * 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+            });
+        });
+
+        // ========== HÀM HIỂN THỊ THÔNG BÁO COPY ==========
+        function showCopyNotification(message) {
+            const notification = document.getElementById('copyNotification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            // Ẩn thông báo sau 2 giây
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+
+    
+      // ========== COPY DISCORD ID ==========
+const discordCard = document.getElementById('discord-card');
+const discordID = 'minhduc03_12_24687';
+
+discordCard.addEventListener('click', function() {
+    // Sao chép vào clipboard
+    navigator.clipboard.writeText(discordID)
+        .then(() => {
+            showCopyNotification('Đã sao chép Discord ID: ' + discordID);
+            
+            // Thêm hiệu ứng phản hồi
+            discordCard.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                discordCard.style.transform = 'scale(1)';
+            }, 200);
+        })
+        .catch(err => {
+            console.error('Không thể sao chép: ', err);
+            showCopyNotification('Không thể sao chép. Vui lòng thử lại!');
+        });
+});
+
+// ========== COPY SỐ ĐIỆN THOẠI ==========
+const creditBox = document.getElementById('creditBox');
+const phoneNumber = '0788835487';
+
+creditBox.addEventListener('click', function() {
+    // Sao chép vào clipboard
+    navigator.clipboard.writeText(phoneNumber)
+        .then(() => {
+            showCopyNotification('Đã sao chép số điện thoại: ' + phoneNumber);
+            
+            // Thêm hiệu ứng phản hồi
+            creditBox.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                creditBox.style.transform = 'scale(1)';
+            }, 200);
+        })
+        .catch(err => {
+            console.error('Không thể sao chép: ', err);
+            showCopyNotification('Không thể sao chép. Vui lòng thử lại!');
+        });
+});
+
+        // ========== KIỂM TRA VÀ LOAD VIDEO ==========
+        const video = document.getElementById('video-background');
+        
+        video.addEventListener('loadedmetadata', function() {
+            console.log("Video đã tải xong metadata");
+            video.playbackRate = 1.0;
+        });
+        
+        video.addEventListener('error', function() {
+            console.log("Video không tải được, sử dụng video dự phòng");
+        });
+
+        // ========== TỰ ĐỘNG PHÁT VIDEO ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            const playVideo = () => {
+                if (video.paused) {
+                    video.play().catch(e => {
+                        console.log("Cần tương tác người dùng để phát video");
+                    });
+                }
+            };
+            
+            playVideo();
+            
+            document.addEventListener('click', playVideo);
+            document.addEventListener('touchstart', playVideo);
+        });
+
+        // ========== HIỆU ỨNG LOADING ==========
+        window.addEventListener('load', function() {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s';
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+            
+            setTimeout(() => {
+                document.querySelectorAll('.link-card').forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.transform = 'translateY(-20px)';
+                        setTimeout(() => {
+                            card.style.transform = 'translateY(0)';
+                            card.style.transition = 'transform 0.3s ease-out';
+                        }, 300);
+                    }, index * 100);
+                });
+            }, 500);
+        });
+
+        // ========== KIỂM TRA VÀ LOAD ẢNH CÁ NHÂN ==========
+        window.addEventListener('load', function() {
+            const images = [
+                {src: 'clove.webp', alt: 'Valorant Avatar'},
+                {src: 'locket.png', alt: 'Locket Avatar'},
+                {src: 'youtube.png', alt: 'YouTube Avatar'},
+                {src: 'dis.png', alt: 'Discord Avatar'}
+            ];
+            
+            images.forEach((image, index) => {
+                const img = new Image();
+                img.onload = function() {
+                    console.log(`Đã tải ảnh: ${image.src}`);
+                };
+                
+                img.onerror = function() {
+                    console.log(`Không thể tải ảnh: ${image.src}`);
+                    const cards = document.querySelectorAll('.left-links .personal-image');
+                    if (cards[index]) {
+                        cards[index].style.opacity = '0.7';
+                        cards[index].style.filter = 'grayscale(100%)';
+                    }
+                };
+                
+                img.src = image.src;
+            });
+        });
+        
+        // ========== PREVENT CONTEXT MENU ON IMAGES ==========
+        document.querySelectorAll('img').forEach(img => {
+            img.addEventListener('contextmenu', e => e.preventDefault());
+        });
+    </script>
+</body>
+</html>
